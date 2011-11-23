@@ -2,6 +2,16 @@ require "net/http"
 require "uri"
 require "json"
 
+uri = URI.parse("http://turing.staging.onnolia.com:4567/?key=bGbfQKrMrbqaDdSkCiYYqlYwfdcNMAtn")
+
+# Shortcut
+#response = Net::HTTP.post_form(uri, {"q" => "My query", "per_page" => "50"})
+
+# Full control
+http = Net::HTTP.new(uri.host, uri.port)
+
+request = Net::HTTP::Post.new(uri.request_uri)
+
 payload = '{
   "before": "5aef35982fb2d34e9d9d4502f6ede1072793222d",
   "repository": {
@@ -43,9 +53,5 @@ payload = '{
   "ref": "refs/heads/master"
 }'
 
-
-uri = URI.parse("http://turing.staging.onnolia.com:4567/?key=bGbfQKrMrbqaDdSkCiYYqlYwfdcNMAtn")
-request = Net::HTTP::Post.new(uri.request_uri)
 request.set_form_data({"payload" => payload})
 response = http.request(request)
-puts response

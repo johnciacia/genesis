@@ -4,7 +4,7 @@ require 'json'
 post '/' do
   key = params[:key]
   if key == 'bGbfQKrMrbqaDdSkCiYYqlYwfdcNMAtn'
-    project_dir = '/Users/john/htdocs/'
+    project_dir = '/home/ubuntu/'
 
     request = JSON.parse(params[:payload])
     project = request['repository']['name']
