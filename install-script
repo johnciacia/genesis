@@ -1,0 +1,18 @@
+sudo apt-get install git build-essential libssl-dev libreadline5 libreadline5-dev zlib1g zlib1g-dev
+
+# http://beginrescueend.com/rvm/install/
+sudo bash < <(curl -sk https://raw.github.com/wayneeseguin/rvm/master/binscripts/rvm-installer)
+sudo usermod -a -G rvm ubuntu
+exit
+
+# rvm notes
+# rvm requirements
+
+# https://rvm.beginrescueend.com/packages/zlib/
+rvm pkg install zlib
+rvm install 1.8.7
+rvm --defaut use 1.8.7
+
+gem install sinatra
+gem install json
+gem install thin 
