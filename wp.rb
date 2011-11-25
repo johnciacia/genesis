@@ -80,6 +80,13 @@ def create_host(vhost)
   system( "service apache2 reload" )
 end
 
+def delete_host(vhost)
+  project_dir = $root_dir + vhost + '/' + $web_root
+  system( "a2dissite " + vhost )  
+  system( "rm -rf " + project_dir )
+  system( "rm -rf /etc/apache2/sites-available/" + vhost )
+  system( "service apache2 reload" )
+end
 
 print "> "
 STDOUT.flush
