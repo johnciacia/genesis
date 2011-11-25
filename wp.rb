@@ -34,9 +34,9 @@ def create_project(project)
   end
 
   #create a new project directory
-  system( 'mkdir ' + project_dir)
+  system( 'mkdir -p ' + project_dir)
   if Dir.glob( project_dir ).empty?
-    puts 'Failed: mkdir ' + project_dir
+    puts 'Failed: mkdir -p ' + project_dir
     return false
   end
 
