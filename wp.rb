@@ -92,7 +92,7 @@ while ( command = gets.strip ) != 'exit'
     when "delete"
       delete_project args[1]
     when "create_host"
-      create_host $args[1]
+      create_host args[1]
     else 
       puts "Unknown command"
   end
