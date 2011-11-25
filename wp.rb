@@ -100,6 +100,8 @@ while ( command = gets.strip ) != 'exit'
       delete_project args[1]
     when "create_host"
       create_host args[1]
+    when "delete_host"
+      delete_host args[1]
     else 
       puts "Unknown command"
   end
