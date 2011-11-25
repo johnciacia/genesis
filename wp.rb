@@ -53,8 +53,8 @@ def create_project(project)
   system( "sed -e 's/database_name_here/" + project + "/g' " \
           + "-e 's/username_here/" + $mysql_username + "/g' " \
           + "-e 's/password_here/" + $mysql_password + "/g' " \
-          + $project_dir + project + "/wp-config-sample.php > " \
-          + $project_dir + project + "/wp-config.php")
+          + project_dir + "/wp-config-sample.php > " \
+          + project_dir + "/wp-config.php")
   #run the wordpress install
   #@todo: make definable in config file
   host = $protocol + project + '.' + $fqdn
