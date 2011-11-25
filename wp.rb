@@ -70,7 +70,7 @@ def delete_project(project)
 end
 
 def create_host(vhost)
-  project_dir = $root_dir + project + '/' + $web_root
+  project_dir = $root_dir + vhost + '/' + $web_root
   system( "mkdir -p " + project_dir )
   system( "sed -e 's/{VHOST}/" + vhost + "/g' " \
         + "-e 's/{DOMAIN}/" + $fqdn + "/g' " \
