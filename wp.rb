@@ -6,21 +6,19 @@ if !Dir.glob( 'config.rb' ).empty?
 else
   $mysql_username = "root"
   $mysql_password = "root"
-  $project_dir = "/var/www/"
+  $root_dir = "/var/www/"
+  $web_root = 'htdocs/'
 
-
-  $fqdn = "http://localhost/"
+  $protocol = "http://"
+  $fqdn = "localhost"
   $wp_user_login = "admin"
   $wp_user_password = "changeme"
   $wp_admin_email = "admin@example.com"
 end
 
+def create_project(project)
 
-def init_project(project) 
-  
-end
-
-def create_project(project)   
+  project_dir = $root_dir + project + '/' + $web_root
   
   out = `mysql -u #{$mysql_username} -p#{$mysql_password}  -e "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '#{project}';"`
   if !out.empty?
@@ -36,16 +34,16 @@ def create_project(project)
   end
 
   #create a new project directory
-  system( 'mkdir ' + $project_dir + project)
-  if Dir.glob( $project_dir + project ).empty?
-    puts 'Failed: mkdir ' + $project_dir + project
+  system( 'mkdir ' + project_dir)
+  if Dir.glob( project_dir ).empty?
+    puts 'Failed: mkdir ' + project_dir
     return false
   end
 
   #unzip wordpress to the project directory
-  system( "tar -xzf /tmp/latest.tar.gz -C " + $project_dir + project + " --strip-components=1")
-  if Dir.glob( $project_dir + project + '/index.php' ).empty?
-    puts "Failed: tar -xzf /tmp/latest.tar.gz -C " + $project_dir + project + " --strip-components=1"
+  system( "tar -xzf /tmp/latest.tar.gz -C " + project_dir + " --strip-components=1")
+  if Dir.glob( project_dir + '/index.php' ).empty?
+    puts "Failed: tar -xzf /tmp/latest.tar.gz -C " + project_dir + " --strip-components=1"
     return false
   end 
   
@@ -58,9 +56,11 @@ def create_project(project)
           + $project_dir + project + "/wp-config-sample.php > " \
           + $project_dir + project + "/wp-config.php")
   #run the wordpress install
-  out = `curl -d 'weblog_title=#{project}&user_login=#{$wp_user_login}&pass1=#{$wp_user_password}&pass2=#{$wp_user_password}&admin_email=#{$wp_admin_email}&blog_public=0' #{$fqdn}#{project}/wp-admin/install.php?step=2 --silent`
+  #@todo: make definable in config file
+  host = $protocol + project + '.' + $fqdn
+  out = `curl -d 'weblog_title=#{project}&user_login=#{$wp_user_login}&pass1=#{$wp_user_password}&pass2=#{$wp_user_password}&admin_email=#{$wp_admin_email}&blog_public=0' #{host}/wp-admin/install.php?step=2 --silent`
 
-  puts "WordPress has been installed: #{$fqdn}#{project}"
+  puts "WordPress has been installed: #{host}"
 
 end
 
@@ -69,6 +69,16 @@ def delete_project(project)
   system("mysql -u " + $mysql_username + " -p" + $mysql_password + " -e 'DROP DATABASE " + project + ";'")  
 end
 
+def create_host(vhost)
+  project_dir = $root_dir + project + '/' + $web_root
+  system( "mkdir -p " + project_dir )
+  system( "sed -e 's/{VHOST}/" + vhost + "/g' " \
+        + "-e 's/{DOMAIN}/" + $fqdn + "/g' " \
+        + "/etc/apache2/sites-available/default.template > " \
+        + "/etc/apache2/sites-available/" + vhost )
+  system( "a2ensite " + vhost )  
+  system( "service apache2 reload" )
+end
 
 
 print "> "
@@ -81,6 +91,8 @@ while ( command = gets.strip ) != 'exit'
       create_project args[1]
     when "delete"
       delete_project args[1]
+    when "create_host"
+      create_host $args[1]
     else 
       puts "Unknown command"
   end
