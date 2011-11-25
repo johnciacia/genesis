@@ -16,7 +16,7 @@ else
   $wp_admin_email = "admin@example.com"
 end
 
-def create_project(project)
+def install_wp(project)
 
   project_dir = $root_dir + project + '/' + $web_root
   
@@ -94,14 +94,23 @@ STDOUT.flush
 while ( command = gets.strip ) != 'exit'
   args = command.split( ' ' );
   case args[0]
-    when "create"
-      create_project args[1]
+    when "init"
+      case args[1]
+        when "host"
+            create_host args[2]
+      end
+    when "install"
+      case args[1]
+        when "wp"
+            install_wp args[2]
+      end
     when "delete"
-      delete_project args[1]
-    when "create_host"
-      create_host args[1]
-    when "delete_host"
-      delete_host args[1]
+        case args[1]
+          when "host"
+              delete_host args[2]
+          when "project"
+            delete_project args[2]
+        end
     else 
       puts "Unknown command"
   end
