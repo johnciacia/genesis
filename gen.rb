@@ -88,6 +88,14 @@ def delete_host(vhost)
   system( "service apache2 reload" )
 end
 
+def init_project(project)
+  puts project
+end
+
+def install_wp_base_debug
+
+end
+
 print "> "
 STDOUT.flush
 
@@ -97,20 +105,31 @@ while ( command = gets.strip ) != 'exit'
     when "init"
       case args[1]
         when "host"
-            create_host args[2]
+          create_host args[2]
+        when "project"
+          project_dir = $root_dir + args[2] + '/' + $web_root
+          print "[" + project_dir + "]"
+          STDOUT.flush
+          sub = gets.strip
+          if(!sub.empty?)
+            project_dir = project_dir + sub
+          end
+          init_project project_dir
       end
     when "install"
       case args[1]
         when "wp"
-            install_wp args[2]
+          install_wp args[2]
+        when "wp-base-debug"
+          install_wp_base_debug
       end
     when "delete"
-        case args[1]
-          when "host"
-              delete_host args[2]
-          when "project"
-            delete_project args[2]
-        end
+      case args[1]
+        when "host"
+          delete_host args[2]
+        when "project"
+          delete_project args[2]
+      end
     else 
       puts "Unknown command"
   end
