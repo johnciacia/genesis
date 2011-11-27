@@ -51,6 +51,7 @@ def install_wp(project)
   #run the wordpress install
   #@todo: make definable in config file
   host = $config['server']['protocol'] + project + '.' + $config['server']['domain']
+  #@todo: username and password not set properly
   out = `curl -d 'weblog_title=#{project}&user_login=#{$wp_user_login}&pass1=#{$wp_user_password}&pass2=#{$wp_user_password}&admin_email=#{$wp_admin_email}&blog_public=0' #{host}/wp-admin/install.php?step=2 --silent`
   puts "WordPress has been installed: #{host}"
 end
@@ -81,7 +82,7 @@ def delete_host(vhost)
 end
 
 def init_project(project)
-  puts project
+  system( "cd " + $config['projects'][project]['root'] + "/../ && git clone " + $config['projects'][project]['git'] )
 end
 
 def install_wp_base_debug
@@ -99,14 +100,7 @@ while ( command = gets.strip ) != 'exit'
         when "host"
           create_host args[2]
         when "project"
-          project_dir = $root_dir + args[2] + '/' + $web_root
-          print "[" + project_dir + "] "
-          STDOUT.flush
-          sub = gets.strip
-          if(!sub.empty?)
-            project_dir = project_dir + sub
-          end
-          init_project project_dir
+          init_project args[2]
       end
     when "install"
       case args[1]
