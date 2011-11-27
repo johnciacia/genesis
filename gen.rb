@@ -1,24 +1,17 @@
 #!/usr/bin/ruby
+require 'yaml'
 
 
-if !Dir.glob( 'config.rb' ).empty?
-  require 'config.rb'
-else
-  $mysql_username = "root"
-  $mysql_password = "root"
-  $root_dir = "/var/www/"
-  $web_root = 'htdocs/'
-
-  $protocol = "http://"
-  $fqdn = "localhost"
-  $wp_user_login = "admin"
-  $wp_user_password = "changeme"
-  $wp_admin_email = "admin@example.com"
-end
+$config = YAML.load_file('config.yml')
+$mysql_username = $config['server']['mysql_username']
+$mysql_password = $config['server']['mysql_password']
+$wp_user_login = $config['wordpress']['user_login']
+$wp_user_password = $config['wordpress']['user_password']
+$wp_admin_email = $config['wordpress']['admin_email']
 
 def install_wp(project)
 
-  project_dir = $root_dir + project + '/' + $web_root
+  project_dir = $config['server']['path'].gsub('%{project}', project)
   
   out = `mysql -u #{$mysql_username} -p#{$mysql_password}  -e "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '#{project}';"`
   if !out.empty?
@@ -57,23 +50,22 @@ def install_wp(project)
           + project_dir + "/wp-config.php")
   #run the wordpress install
   #@todo: make definable in config file
-  host = $protocol + project + '.' + $fqdn
+  host = $config['server']['protocol'] + project + '.' + $config['server']['domain']
   out = `curl -d 'weblog_title=#{project}&user_login=#{$wp_user_login}&pass1=#{$wp_user_password}&pass2=#{$wp_user_password}&admin_email=#{$wp_admin_email}&blog_public=0' #{host}/wp-admin/install.php?step=2 --silent`
-
   puts "WordPress has been installed: #{host}"
-
 end
 
 def delete_project(project)
-  system("rm -rf " + $project_dir + project);
+  project_dir = $config['server']['path'].gsub('%{project}', project)
+  system("rm -rf " + project_dir);
   system("mysql -u " + $mysql_username + " -p" + $mysql_password + " -e 'DROP DATABASE " + project + ";'")  
 end
 
 def create_host(vhost)
-  project_dir = $root_dir + vhost + '/' + $web_root
+  project_dir = $config['server']['path'].gsub('%{project}', vhost)
   system( "mkdir -p " + project_dir )
   system( "sed -e 's/{VHOST}/" + vhost + "/g' " \
-        + "-e 's/{DOMAIN}/" + $fqdn + "/g' " \
+        + "-e 's/{DOMAIN}/" + $config['server']['domain'] + "/g' " \
         + "/etc/apache2/sites-available/default.template > " \
         + "/etc/apache2/sites-available/" + vhost )
   system( "a2ensite " + vhost )  
@@ -81,7 +73,7 @@ def create_host(vhost)
 end
 
 def delete_host(vhost)
-  project_dir = $root_dir + vhost + '/' + $web_root
+  project_dir = $config['server']['path'].gsub('%{project}', vhost)
   system( "a2dissite " + vhost )  
   system( "rm -rf " + project_dir )
   system( "rm -rf /etc/apache2/sites-available/" + vhost )
@@ -108,7 +100,7 @@ while ( command = gets.strip ) != 'exit'
           create_host args[2]
         when "project"
           project_dir = $root_dir + args[2] + '/' + $web_root
-          print "[" + project_dir + "]"
+          print "[" + project_dir + "] "
           STDOUT.flush
           sub = gets.strip
           if(!sub.empty?)
@@ -137,4 +129,3 @@ while ( command = gets.strip ) != 'exit'
   print "> "
   STDOUT.flush
 end
-

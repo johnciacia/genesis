@@ -1,10 +1,12 @@
 require 'sinatra'
 require 'json'
-require 'config.rb'
+require 'yaml'
+
+$config = YAML.load_file('config.yml')
 
 post '/' do
   key = params[:key]
-  if key == 'bGbfQKrMrbqaDdSkCiYYqlYwfdcNMAtn'
+  if key == $config['server']['key']
     request = JSON.parse(params[:payload])
     project = request['repository']['name']
     puts "Updating " + project
