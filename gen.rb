@@ -1,6 +1,11 @@
 #!/usr/bin/ruby
 require 'yaml'
 
+user = `whoami`
+if user.strip != 'root'
+  puts "This script must be run as root"
+  exit
+end
 
 $config = YAML.load_file('config.yml')
 $mysql_username = $config['server']['mysql_username']

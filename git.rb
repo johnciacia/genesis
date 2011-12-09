@@ -9,6 +9,6 @@ post '/' do
   if key == $config['server']['key']
     request = JSON.parse(params[:payload])
     project = request['repository']['name']
-    system('cd ' + $projects['projects'][project]['root'] + " && git pull")
+    system('cd ' + $config['projects'][project]['root'] + " && git pull")
   end
 end
