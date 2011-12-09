@@ -57,7 +57,8 @@ def install_wp(project)
   #@todo: make definable in config file
   host = $config['server']['protocol'] + project + '.' + $config['server']['domain']
   #@todo: username and password not set properly
-  out = `curl -d 'weblog_title=#{project}&user_login=#{$wp_user_login}&pass1=#{$wp_user_password}&pass2=#{$wp_user_password}&admin_email=#{$wp_admin_email}&blog_public=0' #{host}/wp-admin/install.php?step=2 --silent`
+  out = `curl -d 'weblog_title=#{project}&user_login=#{$wp_user_login}&admin_password=#{$wp_user_password}&admin_password2=#{$wp_user_password}&admin_email=#{$wp_admin_email}&blog_public=0' #{host}/wp-admin/install.php?step=2`
+  puts out
   puts "WordPress has been installed: #{host}"
 end
 
@@ -90,6 +91,11 @@ def init_project(project)
   system( "cd " + $config['projects'][project]['root'] + "/../ && git clone " + $config['projects'][project]['git'] )
 end
 
+def help
+  puts "init host <host>"
+  puts "install wp <host>"
+  pust "delete <host>"
+end
 def install_wp_base_debug
 
 end
